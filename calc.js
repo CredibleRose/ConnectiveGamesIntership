@@ -1,120 +1,111 @@
-let number = ''; 
+let value = ''; 
 let rvt = '';
-let znachenie = false; 
-let celoe = false;
-let celoecol = 0;
-let neceloecol = 0;
-let neceloe = false; 
-let dot = false; 
-let sign = '';
-let openkol = 0;
-let closekol = 0;
-let math = false; 
-let open = false;
-let close = false;
-let memory = '';
-let plusminactive = false;
-let finish = false;
-let plusminnumber = false
-let pmnumber = 0
-let numberusualy = 0
+let isCurrentInputAValue = false; 
+let isCurrentInputInt = false;
+let amountOfIntegerPart = 0;
+let amoutOfFactional = 0;
+let isCurrentInputFractional = false; 
+let hasDot = false;
+let openBracketAmount = 0;
+let closeBracketAmount = 0;
+let isCurrentInputOperation = false; 
+let isOpenBracket = false;
+let isCloseBraket = false;
+let memoryValue = '';
+let isPressReverseSigns = false
+let reverseValue = 0
 
 const digit = ['0','1','2','3','4','5','6','7','8','9']
 const rtvnum = ['Rvt']
-const plusmin = ['+/-']
+const reverseSigns = ['+/-']
 const backspace = ['Backspace']
 const dots = ['.'];
 const enter = ['Enter'];
 const action = ['-','+','*','/']
-const parentheses = ['(',')']
-const mem = ['MC' , 'MS' , 'MR' , 'M+' , 'M-']
+const brakets = ['(',')']
+const memoryButtons = ['MC' , 'MS' , 'MR' , 'M+' , 'M-']
 const out = document.querySelector('.calc-screen p');
 
-//Полная очистка
 function clearAll () {
-    number = '';
-    memory = '';
-    znachenie = false; 
-    math = false;
-    dot = false 
-    open = false;
-    close = false;
-    finish = false;
-    celoe = false;
-    neceloe = false;
-    openkol = 0;
-    closekol = 0;
-    neceloecol = 0;
-    celoecol = 0;   
+    value = '';
+    memoryValue = '';
+    isCurrentInputAValue = false; 
+    isCurrentInputOperation = false;
+    hasDot = false 
+    isOpenBracket = false;
+    isCloseBraket = false;
+    isCurrentInputInt = false;
+    isCurrentInputFractional = false;
+    openBracketAmount = 0;
+    closeBracketAmount = 0;
+    amoutOfFactional = 0;
+    amountOfIntegerPart = 0;   
     out.textContent = 0;
-    plusminnumber = false
+    isPressReverseSigns = false
     pmnumber = 0
-    numberusualy = 0
+    reverseValue = 0
 
 }
-//Удаление
-function remove () {
-    if(number.slice(number.length-2,-1) == '+' || '-'|| '*'||'/'){
-        console.log(neceloe);
-        if(!neceloe & celoe){
-            neceloe = true;
-            celoe = false;
-            dot = false
+function removeLastSymbol () {
+    if(value.slice(value.length-2,-1) == '+' || '-'|| '*'||'/'){
+        console.log(isCurrentInputFractional);
+        if(!isCurrentInputFractional & isCurrentInputInt){
+            isCurrentInputFractional = true;
+            isCurrentInputInt = false;
+            hasDot = false
         }else{
-            neceloe = false
-            celoe = true
-            dot = true
+            isCurrentInputFractional = false
+            isCurrentInputInt = true
+            hasDot = true
         }
     }
-    switch (number.slice(-1)){
+    switch (value.slice(-1)){
         case '(':
-            open = false;
+            isOpenBracket = false;
             break
         case ')':
-            close = false
+            isCloseBraket = false
             break
         case '+':
-            math = false
+            isCurrentInputOperation = false
             break
         case '-':
-            math = false
+            isCurrentInputOperation = false
             break
         case '*':
-            math = false
+            isCurrentInputOperation = false
             break
         case '/':
-            math = false
+            isCurrentInputOperation = false
             break
         case '.':
-            dot = false
-            celoe = true
-            neceloe = false
+            hasDot = false
+            isCurrentInputInt = true
+            isCurrentInputFractional = false
             break
     }
-    if(dot){
-        neceloecol-=1
-    }else if (!dot){
-        celoecol-=1
+    if(hasDot){
+        amoutOfFactional-=1
+    }else if (!hasDot){
+        amountOfIntegerPart-=1
     }   
-    number = number.slice(0, -1);
-    out.textContent = number;   
+    value = value.slice(0, -1);
+    out.textContent = value;   
 }
-//Очистка
 function clear () {
-    number = ''
+    value = ''
     finish = false;
     out.textContent = 0;
 }
-//Обратная польская запись
 function calculation(buffString) {        
-    buffString = buffString.replace(/([^[0-9.]{1})/g, " $1 ").trim(); // добавим пробелы вокруг не чисел       
-    buffString = buffString.replace(/ {1,}/g, " ");              // удаление сдвоенных пробелов       
-    var buffArray = buffString.split(/\s/);                   // Элементы - в массив        
+    buffString = buffString.replace(/([^[0-9.]{1})/g, " $1 ").trim();      
+    buffString = buffString.replace(/ {1,}/g, " ");     
+    var buffArray = buffString.split(/\s/);     
     var polishString = new Array;        
     var polishStack = new Array;       
     var stringId = -1;        
     var stackId = -1;       
-    for (var i = 0; i < buffArray.length; i++) {                // формируем обратную польскую запись        
+    for (var i = 0; i < buffArray.length; i++) {    
         switch (buffArray[i]) {       
             case "(":       
                 stackId++;       
@@ -173,8 +164,8 @@ function calculation(buffString) {
         stringId++;
         polishString[stringId] = polishStack[stackId];
         stackId--;
-    }                                                                  // польская запись готова
-    stackId = -1;                                                      // Начинаем считать по польской записи
+    }
+    stackId = -1;
     var stringIdMax = stringId;
      
     for (stringId = 0; stringId <= stringIdMax; stringId++ ) {
@@ -201,155 +192,145 @@ function calculation(buffString) {
         }
     }
     return polishStack[stackId];
-} 
-//Вычесления                
-function kalk() {
-        let res = calculation(number);
+}                
+function equalValue() {
+        let res = calculation(value);
         rvt = res;
-        number = res
+        value = res
         let stri = ''
         stri = res.toString()        
         out.textContent = parseFloat(parseFloat(res.toString()).toFixed(8));
-        finish = true;
 }
-//Нажата цифра
-function pressnumber(key) {
-    if(dot && neceloecol<8){
-        number +=key
-        neceloecol++
-        out.textContent = number;
-        znachenie = true;
-        neceloe = true;
-        math = false;
+function pressNumberKey(key) {
+    if(hasDot && amoutOfFactional<8){
+        value +=key
+        amoutOfFactional++
+        out.textContent = value;
+        isCurrentInputAValue = true;
+        isCurrentInputFractional = true;
+        isCurrentInputOperation = false;
         return
-    }else if(!dot && celoecol<12){
-        celoecol++
-        celoe = true;
-        neceloe = false;
-        number +=key
-        out.textContent = number;
-        znachenie = true;
-        math = false;
+    }else if(!hasDot && amountOfIntegerPart<12){
+        amountOfIntegerPart++
+        isCurrentInputInt = true;
+        isCurrentInputFractional = false;
+        value +=key
+        out.textContent = value;
+        isCurrentInputAValue = true;
+        isCurrentInputOperation = false;
         return
     }else{
-        out.textContent = number;
+        out.textContent = value;
         return
     }
 }
-//Нажата точка
-function pressdot(key) {
-    if (celoe && !neceloe && !dot){
-        dot = true;
-        celoecol = 0;
-        number +=key;
-        celoe = false;
-        out.textContent = number;
+function pressDotKey(key) {
+    if (isCurrentInputInt && !isCurrentInputFractional && !hasDot){
+        hasDot = true;
+        amountOfIntegerPart = 0;
+        value +=key;
+        isCurrentInputInt = false;
+        out.textContent = value;
         return;
     }
 }
-//Нажато скобка
-function pressopenclose(key){
-    if (open && !close && key === '(' && znachenie && !math){
-        out.textContent = number;
+function pressBraketsKey(key){
+    if (isOpenBracket && !isCloseBraket && key === '(' && isCurrentInputAValue && !isCurrentInputOperation){
+        out.textContent = value;
         return
     }
-    else if (!open && close && key === ')' && !znachenie && math){
-        out.textContent = number;            
+    else if (!isOpenBracket && isCloseBraket && key === ')' && !isCurrentInputAValue && isCurrentInputOperation){
+        out.textContent = value;            
         return
     }
-    else if (!open && close && key === '(' && !znachenie && !math){
-        number +=key
-        open = true;
-        close = false;
-        out.textContent = number;
+    else if (!isOpenBracket && isCloseBraket && key === '(' && !isCurrentInputAValue && !isCurrentInputOperation){
+        value +=key
+        isOpenBracket = true;
+        isCloseBraket = false;
+        out.textContent = value;
         return
     }
-    else if (open && !close && key === ')' && znachenie && math){
-        out.textContent = number;            
+    else if (isOpenBracket && !isCloseBraket && key === ')' && isCurrentInputAValue && isCurrentInputOperation){
+        out.textContent = value;            
         return
     }
-    else if (!open && !close && key === '(' && !znachenie && !math){
-        number +=key
-        open = true;
-        close = false;
-        out.textContent = number;
+    else if (!isOpenBracket && !isCloseBraket && key === '(' && !isCurrentInputAValue && !isCurrentInputOperation){
+        value +=key
+        isOpenBracket = true;
+        isCloseBraket = false;
+        out.textContent = value;
         return            
     }
-    else if (!open && close && key === '('){
-        number +=key
-        open = true;
-        close = false;
-        out.textContent = number;
+    else if (!isOpenBracket && isCloseBraket && key === '('){
+        value +=key
+        isOpenBracket = true;
+        isCloseBraket = false;
+        out.textContent = value;
         return
     }
-    else if (open && !close && key === ')' && znachenie && !math){
-        number +=key
-        close = true;
-        open = false;
-        out.textContent = number;
+    else if (isOpenBracket && !isCloseBraket && key === ')' && isCurrentInputAValue && !isCurrentInputOperation){
+        value +=key
+        isCloseBraket = true;
+        isOpenBracket = false;
+        out.textContent = value;
         return
     }
-    else if (!open && !close && key ==='(' && !znachenie){
-        number +=key
-        open = true;
-        close = false;
-        out.textContent = number;
+    else if (!isOpenBracket && !isCloseBraket && key ==='(' && !isCurrentInputAValue){
+        value +=key
+        isOpenBracket = true;
+        isCloseBraket = false;
+        out.textContent = value;
         return
     }
 }
-//Нажато действие
-function pressaction(key) {
-    if (math && !znachenie) {
-        out.textContent = number;
+function pressOperationKey(key) {
+    if (isCurrentInputOperation && !isCurrentInputAValue) {
+        out.textContent = value;
         return
     }
     else{
-        celoecol = 0
-        neceloecol = 0
-        dot = false;
-        sign = key;
-        math = true;
-        znachenie = false
-        number += key;
-        out.textContent = number;
+        amountOfIntegerPart = 0
+        amoutOfFactional = 0
+        hasDot = false;
+        isCurrentInputOperation = true;
+        isCurrentInputAValue = false
+        value += key;
+        out.textContent = value;
         return;
     }
 }
-//Нажато память
-function pressmem(key){
+function pressMemoryKey(key){
     switch (key){
         case 'MC':
-            memory = ''
-            out.textContent = number;
+            memoryValue = ''
+            out.textContent = value;
             break;
         case 'MS':
-            memory = number;
-            number = '';
+            memoryValue = value;
+            value = '';
             break;
         case 'MR':
-            number = memory;
-            out.textContent = number;
+            value = memoryValue;
+            out.textContent = value;
             break;
         case 'M+':
-            memory = memory + ' + ' + number;
-            memory = eval(memory);
-            number = '';
+            memoryValue = memoryValue + ' + ' + value;
+            memoryValue = eval(memoryValue);
+            value = '';
             break;
         case 'M-':
-            memory =memory + ' - ' + number;
-            memory = eval(memory);
-            number = '';
+            memoryValue =memoryValue + ' - ' + value;
+            memoryValue = eval(memoryValue);
+            value = '';
             break;
     }
 }
 
+document.querySelector('.AC').onclick = clearAll;
+document.querySelector('.equal').onclick = equalValue;
+document.querySelector('.C').onclick = clear;
+document.querySelector('.back').onclick = removeLastSymbol;
 
-document.querySelector('.AC').onclick = clearAll; //Нажато полное очищение на экране
-document.querySelector('.equal').onclick = kalk; //Нажато равно
-document.querySelector('.C').onclick = clear; // Нажато C
-document.querySelector('.back').onclick = remove; //Нажато <-
-
-//нажато что-то на экране
 document.querySelector('.buttons').onclick = (event) => {
     if(!event.target.classList.contains('btn')) return;
     if(event.target.classList.contains('AC')) return;
@@ -357,94 +338,84 @@ document.querySelector('.buttons').onclick = (event) => {
 
     const key = event.target.textContent;
 
-    //нажата цыфра
     if (digit.includes(key)) {
-        pressnumber(key);        
+        pressNumberKey(key);        
     }
-    //нажата rvt
     if (rtvnum.includes(key)){
-        number = rvt;
-        out.textContent = number;
+        value = rvt;
+        out.textContent = value;
         return;
     }
-    //нажата точка
     if (dots.includes(key)){
-        pressdot(key)
+        pressDotKey(key)
     }
-    //нажат -+
-    if (plusmin.includes(key)){
-        number.toString();       
+    if (reverseSigns.includes(key)){
+        value.toString();       
 
-        if(!plusminnumber){
-            pmnumber=number   
-            numberusualy = number.split('').reverse().join('') 
-            for(let i = 0 ; i <= number.length;i++){
+        if(!isPressReverseSigns){
+            pmnumber=value   
+            reverseValue = value.split('').reverse().join('') 
+            for(let i = 0 ; i <= value.length;i++){
                 console.log('est')
-                console.log(numberusualy.slice(i,i +1 -number.length))
-                if(numberusualy.slice(i,i +1 -number.length)=='+'){
-                    numberusualy = numberusualy.replace(/[\+]/,'-(+')
+                console.log(reverseValue.slice(i,i +1 -value.length))
+                if(reverseValue.slice(i,i +1 -value.length)=='+'){
+                    reverseValue = reverseValue.replace(/[\+]/,'-(+')
                     break
-                }else if(numberusualy.slice(i,i +1 -number.length)=='-'){
-                    numberusualy = numberusualy.replace(/[\-]/,'-(-')
+                }else if(reverseValue.slice(i,i +1 -value.length)=='-'){
+                    reverseValue = reverseValue.replace(/[\-]/,'-(-')
                     break
-                }else if(numberusualy.slice(i,i +1 -number.length)=='*'){
-                    numberusualy = numberusualy.replace(/[\*]/,'-(*')
+                }else if(reverseValue.slice(i,i +1 -value.length)=='*'){
+                    reverseValue = reverseValue.replace(/[\*]/,'-(*')
                     break
-                }else if(numberusualy.slice(i,i +1 -number.length)=='/'){
-                    numberusualy = numberusualy.replace(/[\/]/,'-(/')
+                }else if(reverseValue.slice(i,i +1 -value.length)=='/'){
+                    reverseValue = reverseValue.replace(/[\/]/,'-(/')
                     break
                 }
             }
 
-            number = numberusualy.split('').reverse().join('')
-            number += ')'
-            out.textContent = number; 
-            plusminnumber = true;
+            value = reverseValue.split('').reverse().join('')
+            value += ')'
+            out.textContent = value; 
+            isPressReverseSigns = true;
         }
         else{
-            plusminnumber = false
-            number = pmnumber
-            out.textContent = number;
+            isPressReverseSigns = false
+            value = pmnumber
+            out.textContent = value;
         }
-        out.textContent = number;
+        out.textContent = value;
         return
     }
-    //нажата скобка
-    if (parentheses.includes(key)) {
-        pressopenclose(key);       
+    if (brakets.includes(key)) {
+        pressBraketsKey(key);       
     }
-
-    //Нажата клавиша +-/*
     if (action.includes(key)) {
-        pressaction(key);
+        pressOperationKey(key);
     }
-
-    if (mem.includes(key)){
-        pressmem(key);
-    }
-    
+    if (memoryButtons.includes(key)){
+        pressMemoryKey(key);
+    }    
 }
-//нажато что-то на клавиатуре 
+ 
 document.onkeydown = (event) => {
     const keyb = event.key;
     console.log(event.key);
     if (backspace.includes(keyb)){
-        remove();
+        removeLastSymbol();
     }
     if (digit.includes(keyb)) {
-        pressnumber(keyb)
+        pressNumberKey(keyb)
     }
     if (dots.includes(keyb)){
-        pressdot(keyb)
+        pressDotKey(keyb)
     }
-    //Нажата клавиша +-/*
     if (action.includes(keyb)) {
-        pressaction(keyb)
+        pressOperationKey(keyb)
     }
-    if (parentheses.includes(keyb)) {
-        pressopenclose(keyb);       
+    if (brakets.includes(keyb)) {
+        pressBraketsKey(keyb);       
     }
     if (enter.includes(keyb)){
-        kalk();        
+        equalValue();        
     }
 }
